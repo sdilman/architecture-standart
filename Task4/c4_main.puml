@@ -1,0 +1,27 @@
+@startuml Bank_System_C4
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' --- Настройки ---
+skinparam wrapWidth 200
+skinparam monochrome true
+skinparam shadowing false
+
+' --- Персонажи ---
+Person(call_employee_bank, "Менеджер колл-центра банка", "Сотрудник колл-центра, осуществляющий руководство работой колл-центра")
+Person(call_employee_partner, "Менеджер партнерского колл-центра", "Сотрудник колл-центра, осуществляющий руководство работой колл-центра")
+Person(back_employee, "Сотрудник бэк-офиса депозитов", "Сотрудник банка, фиксирующий операции в АБС")
+
+' --- Системы ---
+System_Boundary(bank_boundary, "Консультирование по ставкам депозитов") {
+    Container(back_office, "Бэк-офис депозитов", "Обрабатывает заявки и выдачу депозитов")
+    Container(call_center_partner, "Колл-центр партнерский", "Внешний колл-центр ")
+}
+
+' --- Связи ---
+Rel(back_employee, back_office, "Запрос актуальных ставок в файловом виде", "внутренняя сеть")
+Rel(back_employee, call_employee_bank, "Отправка файла", "Email")
+Rel(back_employee, call_center_partner, "Выгрузка файла", "FTP")
+Rel(call_employee_partner, call_center_partner, "Получение файла", "внутренняя сеть")
+
+
+@enduml
