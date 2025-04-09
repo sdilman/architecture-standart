@@ -1,0 +1,43 @@
+@startuml Bank_System_C4
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' --- Настройки ---
+skinparam wrapWidth 200
+skinparam monochrome true
+skinparam shadowing false
+
+' --- Персонажи ---
+Person(client, "Клиент", "Физическое лицо, открывающее депозит через сайт/интернет-банк")
+Person(front_employee, "Менеджер фронт-офиса", "Сотрудник банка, открывающее депозит клиенту")
+Person(call_employee, "Сотрудник колл-центра", "Сотрудник банка, совершающий звонок клиенту")
+Person(back_employee, "Сотрудник бэк-офиса депозитов", "Сотрудник банка, фиксирующий операции в АБС")
+
+' --- Системы ---
+System_Boundary(bank_boundary, "Банковская ИТ-система") {
+    Container(site, "Сайт банка", "Веб-приложение", "Отображение депозитов, сбор заявок")
+    Container(internet_bank, "Интернет-банк", "Веб-приложение", "Персонализированные ставки, открытие депозитов")
+    Container(abs, "АБС", "Core Banking System", "Обработка депозитов, ведение XLS-ставок")
+    Container(sms_service, "СМС-сервис", "Внутренний сервис", "Отправка уведомлений")
+}
+
+' --- Связи ---
+Rel(client, site, "Просмотр депозитов\nОтправка заявки (ФИО, тел.)", "HTTPS/TLS")
+Rel(client, internet_bank, "Открытие депозита\n(счёт, сумма, СМС-подтверждение)", "HTTPS/mTLS")
+Rel(site, call_employee, "Передача заявки", "Email")
+Rel(call_employee, front_employee, "Ожидание клиента в офисе", "Email")
+Rel(internet_bank, sms_service, "Запрос на отправку СМС", "SOAP")
+Rel(internet_bank, front_employee, "Ожидание клиента в офисе", "Email")
+Rel(front_employee, back_employee, "Подтверждение проверки документов клиента", "JDBC")
+Rel(back_employee, abs, "Подтверждение факта открытия депозита", "JDBC")
+Rel(abs, sms_service, "Уведомление об открытии депозита", "SOAP")
+
+' --- Легенда ---
+legend right
+  **Технологии:**
+  - Шифрование: TLS/mTLS
+  - БД: MS SQL, Oracle
+  - Очереди: Kafka
+  - Совместимость: REST/SOAP/JDBC
+endlegend
+
+@enduml
