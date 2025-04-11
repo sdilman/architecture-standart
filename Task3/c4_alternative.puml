@@ -1,0 +1,45 @@
+@startuml Bank_System_C4
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' --- Настройки ---
+skinparam wrapWidth 200
+skinparam monochrome true
+skinparam shadowing false
+
+' --- Персонажи ---
+Person(client, "Клиент", "Физическое лицо, открывающее депозит через сайт/интернет-банк")
+
+' --- Системы ---
+System_Boundary(bank_boundary, "Банковская ИТ-система") {
+    Container(site, "Сайт банка", "Веб-приложение", "Отображение депозитов, сбор заявок")
+    Container(internet_bank, "Интернет-банк", "Веб-приложение", "Персонализированные ставки, открытие депозитов")
+    Container(call_center, "Кол-центр", "CRM-система", "Обработка заявок, звонки клиентам")
+    Container(abs, "АБС", "Core Banking System", "Обработка депозитов, ведение XLS-ставок")
+    Container(sms_service, "СМС-сервис", "Внутренний сервис", "Отправка уведомлений")
+    ContainerDb(db, "База данных", "MS SQL/Oracle", "Хранение заявок, ставок, клиентов")
+    ContainerQueue(msg_queue, "Очередь сообщений", "Kafka", "Асинхронная обработка заявок")
+}
+
+' --- Связи ---
+Rel(client, site, "Просмотр депозитов\nОтправка заявки (ФИО, тел.)", "HTTPS/TLS")
+Rel(client, internet_bank, "Открытие депозита\n(счёт, сумма, СМС-подтверждение)", "HTTPS/mTLS")
+Rel(site, call_center, "Передача заявки", "REST API")
+Rel(internet_bank, sms_service, "Запрос на отправку СМС", "SOAP")
+Rel(internet_bank, msg_queue, "Отправка заявки в АБС", "Kafka")
+Rel(msg_queue, abs, "Обработка заявки", "JDBC")
+Rel(call_center, abs, "Проверка/корректировка ставок", "JDBC")
+Rel(abs, sms_service, "Уведомление об открытии депозита", "SOAP")
+Rel_D(site, db, "Хранение заявок", "JDBC")
+Rel_D(internet_bank, db, "Чтение персонализированных ставок", "JDBC")
+Rel_D(abs, db, "Ведение депозитов/XLS-ставок", "JDBC")
+
+' --- Легенда ---
+legend right
+  **Технологии:**
+  - Шифрование: TLS/mTLS
+  - БД: MS SQL, Oracle
+  - Очереди: Kafka
+  - Совместимость: REST/SOAP/JDBC
+endlegend
+
+@enduml
