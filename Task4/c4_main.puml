@@ -20,7 +20,7 @@ System_Boundary(bank_boundary, "Консультирование по ставк
 ' --- Связи ---
 Rel(back_employee, back_office, "Запрос актуальных ставок в файловом виде", "внутренняя сеть")
 Rel(back_employee, call_employee_bank, "Отправка файла", "Email")
-Rel(back_employee, call_center_partner, "Выгрузка файла", "FTP")
+Rel(back_employee, call_center_partner, "Выгрузка файла", "SFTP")
 Rel(call_employee_partner, call_center_partner, "Получение файла", "внутренняя сеть")
 
 
